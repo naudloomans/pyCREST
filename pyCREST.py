@@ -35,19 +35,19 @@ import csv
 import time
 
 
-def create_profiles(n=1,month=7,daytype='weekday'):
+def create_profiles(n=20,month=5,daytype='weekend'):
 
 # check that day type is valid:
 	if daytype in ['weekday', 'weekend']:
 		pass
 	else:
-		print 'invalid day type, should be weekend or weekday'
+		print ('invalid day type, should be weekend or weekday')
 		return 0
 
 	if month in range(1,13):
 		pass
 	else:
-		print 'invalid month type, should be int in range 1 to 12'
+		print ('invalid month type, should be int in range 1 to 12')
 		return 0
 
 
@@ -55,11 +55,11 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 	no_its = n
 
 
-	appliances = numpy.genfromtxt('appliances.dat',skip_header=27,dtype=(None))
+	appliances = numpy.genfromtxt('appliances.dat',skip_header=27,dtype=(None), encoding=None)
 	sim_dataP_for_file = numpy.zeros([no_its,1440])
 	sim_dataQ_for_file = numpy.zeros([no_its,1440])
 	#appliances_in_dwelling_for_file = numpy.empty([no_its,33],dtpye='a18')
-	appliances_in_dwelling_for_file = [[] for i in xrange(no_its)]
+	appliances_in_dwelling_for_file = [[] for i in range(no_its)]
 	occ_profile_for_file = numpy.zeros([no_its,144])
 	
 	idstring = str(no_its) + 'x_' + 'month-' + str(month) + '_' + 'daytype-' + str(daytype)
@@ -75,7 +75,7 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 			time1 = time.time()
 		appliances_in_dwelling = ConfigureAppliancesInDwelling(appliances)
 		
-		activity_stats = numpy.genfromtxt('activity_stats.dat',skip_header=11,dtype=(None))
+		activity_stats = numpy.genfromtxt('activity_stats.dat',skip_header=11,dtype=(None),encoding=None)
 
 		sim_dataP = numpy.zeros([len(appliances_in_dwelling[:]),1440])
 		sim_dataQ = numpy.zeros([len(appliances_in_dwelling[:]),1440])
@@ -115,7 +115,7 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 					#Get the ten minute period count
 					iTenMinuteCount = ((iMinute - 1)/10)
 					# Get the number of current active occupants for this minute (convert from 10 minute to 1 minute resolution)
-					iActiveOccupants = occ_profile[iTenMinuteCount] 
+					iActiveOccupants = occ_profile[int(iTenMinuteCount)] 
 			
 					# If this appliance is off having completed a cycle (ie. a restart delay)
 					if (iCycleTimeLeft <= 0) and (iRestartDelayTimeLeft > 0):
@@ -139,7 +139,7 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 								[activity_days] = [activity_stats[:][x] for x in numpy.where(activity_stats['f0']==dayflag)]
 								[activity_occs] = [activity_days[:][x] for x in numpy.where(activity_days['f1']==iActiveOccupants)]
 								[activity_use_profile] = [activity_occs[:][x] for x in numpy.where(activity_occs['f2']==sUseProfile)] # sUseProfile = appliances[16] = activity type (string)
-								dActivityProbability = activity_use_profile[0][iTenMinuteCount+3] # Get the probability for this activity profile for this time step
+								dActivityProbability = activity_use_profile[0][int(iTenMinuteCount+3)] # Get the probability for this activity profile for this time step
 									 
 									
 								# For electric space heaters ... (excluding night storage heaters)
@@ -209,7 +209,7 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 					sim_dataP[appliance,iMinute-1] = iStandbyPower
 					
 					#Get the ten minute period count
-					iTenMinuteCount = ((iMinute - 1)/10)
+					iTenMinuteCount = int(((iMinute - 1)/10))
 					# Get the number of current active occupants for this minute (convert from 10 minute to 1 minute resolution)
 					iActiveOccupants = occ_profile[iTenMinuteCount] 
 			
@@ -342,19 +342,19 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 ###################################################################################################################
 		if i==0:
 			timet = time.time()-time1
-			print 'Approx time to completion = ' + str(timet*n) + ' seconds.'
+			print ('Approx time to completion = ' + str(timet*n) + ' seconds.')
 	# save sim_data to file here
 	Pfile = open('Pfile_'+idstring+'.dat', 'w')
 	
 	numpy.savetxt('Pfile_'+idstring+'.dat',sim_dataP_for_file,fmt="%d", delimiter='\t')
 	Pfile.close
-	Qfile = file('Qfile_'+idstring+'.dat', 'a')
+	Qfile = open('Qfile_'+idstring+'.dat', 'a')
 	numpy.savetxt('Qfile_'+idstring+'.dat',sim_dataQ_for_file,fmt="%d", delimiter='\t')
 	Qfile.close
-	Occfile = file('Occfile_'+idstring+'.dat', 'a')
+	Occfile = open('Occfile_'+idstring+'.dat', 'a')
 	numpy.savetxt('Occfile_'+idstring+'.dat',occ_profile_for_file,fmt="%d", delimiter='\t')
 	Occfile.close
-	Appliancesfile = file('Appliancesfile_'+idstring+'.dat', 'a')
+	Appliancesfile = open('Appliancesfile_'+idstring+'.dat', 'a')
 	#ppliancesfile.writelines(["%s\n" % item for item in appliances_in_dwelling_for_file])
 	for item in appliances_in_dwelling_for_file:
 		for item in item:
@@ -363,7 +363,7 @@ def create_profiles(n=1,month=7,daytype='weekday'):
 		Appliancesfile.write("\n")
 	Appliancesfile.close
 	timet = time.time()-time1
-	print 'Actual time to completion = ' + str(timet) + ' seconds.'	
+	print ('Actual time to completion = ' + str(timet) + ' seconds.')
 	
 
 		
@@ -623,7 +623,7 @@ def RunLightingSimulation(month,occ_profile):
 			
 			# Get the number of current active occupants for this minute
 			# Convert from 10 minute to 1 minute resolution
-			iActiveOccupants = occ_profile[((iTime)/10)-1]
+			iActiveOccupants = occ_profile[int((iTime/10)-1)]
 			# Determine if the bulb switch-on condition is passed
 			# ie. Insuffient irradiance and at least one active occupant
 			# There is a 5% chance of switch on event if the irradiance is above the threshold
@@ -634,7 +634,7 @@ def RunLightingSimulation(month,occ_profile):
 			# Mean Annual Electricity Consumption for Lighting, by Family Income by Number of Household Members
 			fEffectiveOccupancyArray = numpy.array([0.0,1.0,1.528,1.694,1.983,2.094])
 			# Get the effective occupancy for this number of active occupants to allow for sharing
-			fEffectiveOccupancy = fEffectiveOccupancyArray[iActiveOccupants]
+			fEffectiveOccupancy = fEffectiveOccupancyArray[int(iActiveOccupants)]
 			iLightDuration =0
 			# Check the probability of a switch on at this time
 			if (bLowIrradiance and (random() < (fEffectiveOccupancy * fCalibratedRelativeUseWeighting))):
@@ -678,7 +678,7 @@ def RunLightingSimulation(month,occ_profile):
 						break
                     
 					# Get the number of current active occupants for this minute
-					iActiveOccupants = occ_profile[((iTime - 1)/10)]
+					iActiveOccupants = occ_profile[int(((iTime - 1)/10))]
 					
 					# If there are no active occupants, turn off the light
 					if iActiveOccupants == 0:
