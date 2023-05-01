@@ -35,7 +35,7 @@ import csv
 import time
 
 
-def create_profiles(n=20,month=5,daytype='weekend'):
+def create_profiles(n=10,month=1,daytype='weekday'):
 
 # check that day type is valid:
 	if daytype in ['weekday', 'weekend']:
@@ -113,9 +113,9 @@ def create_profiles(n=20,month=5,daytype='weekend'):
 					iMinute = 1440+iMinute
 					#print iMinute
 					#Get the ten minute period count
-					iTenMinuteCount = ((iMinute - 1)/10)
+					iTenMinuteCount = int(((iMinute - 1)/10))
 					# Get the number of current active occupants for this minute (convert from 10 minute to 1 minute resolution)
-					iActiveOccupants = occ_profile[int(iTenMinuteCount)] 
+					iActiveOccupants = occ_profile[iTenMinuteCount] 
 			
 					# If this appliance is off having completed a cycle (ie. a restart delay)
 					if (iCycleTimeLeft <= 0) and (iRestartDelayTimeLeft > 0):
